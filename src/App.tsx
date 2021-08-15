@@ -7,15 +7,14 @@ import {
 	currentStrokeSelector,
 } from './selectors';
 
-import {
-	beginStroke,
-	endStroke,
-	updateStroke,
-} from './modules/currentStroke/actions';
+import { beginStroke, updateStroke } from './modules/currentStroke/slice';
+
+import { endStroke } from './modules/sharedActions';
 
 import { useCanvas } from './CanvasContext';
 
 import { drawStroke, clearCanvas } from './canvasUtils';
+import { ModalLayer } from './ModalLayer';
 import { ColorPanel } from './shared/ColorPanel';
 import { EditPanel } from './shared/EditPanel';
 import { FilePanel } from './shared/FilePanel';
@@ -36,7 +35,7 @@ export const App = () => {
 		nativeEvent,
 	}: React.MouseEvent<HTMLCanvasElement>) => {
 		const { offsetX, offsetY } = nativeEvent;
-		dispatch(beginStroke(offsetX, offsetY));
+		dispatch(beginStroke({ x: offsetX, y: offsetY }));
 	};
 
 	const draw = ({ nativeEvent }: React.MouseEvent<HTMLCanvasElement>) => {
@@ -44,12 +43,12 @@ export const App = () => {
 			return;
 		}
 		const { offsetX, offsetY } = nativeEvent;
-		dispatch(updateStroke(offsetX, offsetY));
+		dispatch(updateStroke({ x: offsetX, y: offsetY }));
 	};
 
 	const endDrawning = () => {
 		if (isDrawing) {
-			dispatch(endStroke(currentStroke, historyIndex));
+			dispatch(endStroke({ stroke: currentStroke, historyIndex }));
 		}
 	};
 
@@ -63,6 +62,7 @@ export const App = () => {
 		requestAnimationFrame(() =>
 			drawStroke(context, currentStroke.points, currentStroke.color)
 		);
+		// eslint-disable-next-line
 	}, [currentStroke]);
 
 	useEffect(() => {
@@ -76,6 +76,7 @@ export const App = () => {
 				drawStroke(context, stroke.points, stroke.color);
 			});
 		});
+		// eslint-disable-next-line
 	}, [historyIndex, strokes]);
 	console.log(historyIndex);
 	return (
@@ -86,6 +87,7 @@ export const App = () => {
 					<button aria-label="Close" />
 				</div>
 			</div>
+			<ModalLayer />
 			<FilePanel />
 			<EditPanel />
 			<ColorPanel />

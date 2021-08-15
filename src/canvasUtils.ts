@@ -1,4 +1,4 @@
-import { Point } from './types';
+import { Point } from './utils/types';
 
 export const drawStroke = (
 	context: CanvasRenderingContext2D,
